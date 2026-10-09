@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Begena · በገና</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#1a1008;--gold:#c9922a;--gold2:#e8b84b;--cream:#f5e8c8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--cream);min-height:100vh;display:flex;flex-direction:column;align-items:center;
+font-family:Georgia,'Times New Roman',serif;-webkit-user-select:none;user-select:none;overflow-x:hidden;padding-bottom:24px}
+h1{font-size:28px;margin-top:18px;letter-spacing:1px}h1 span{color:var(--gold2)}
+.am{color:var(--gold);font-size:13px;letter-spacing:3px;margin-top:14px;text-align:center}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 12px 0}
+.bar button{background:rgba(255,255,255,.06);border:1px solid rgba(201,146,42,.4);color:var(--gold);font:13px Georgia,serif;
+padding:9px 14px;border-radius:3px;cursor:pointer}
+.bar button.on{background:var(--gold);color:#2c1505;font-weight:700}
+svg{width:min(400px,94vw);height:auto;margin-top:12px;touch-action:none;filter:drop-shadow(0 16px 40px rgba(0,0,0,.7))}
+.drone{opacity:.35}.hit{stroke:transparent;stroke-width:26;stroke-linecap:round}
+.ln{stroke-linecap:round}.main .ln{stroke:#e8c97a}.drone .ln{stroke:#b89a64}
+.on .ln{stroke:#fff3c4;stroke-width:3.2;animation:w .07s 8 alternate}
+@keyframes w{to{transform:translateX(2px)}}
+.bd{fill:#c9922a;stroke:#2c1505}.fn{fill:#2c1505;font:700 13px Georgia;text-anchor:middle}
+.nt{fill:#f5e8c8;font:13px Georgia;text-anchor:middle}
+#info{height:22px;margin-top:10px;font-size:15px;color:var(--gold2)}
+.ft{font-size:12px;font-style:italic;opacity:.45;text-align:center;margin:8px 20px 0;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="am">በገና • BEGENA</div>
+<h1>The <span>Begena</span></h1>
+<div class="bar" id="bar"></div>
+<svg id="sv" viewBox="0 0 340 620">
+<defs>
+<linearGradient id="wl" x1="0" x2="1"><stop offset="0" stop-color="#1a0a02"/><stop offset=".5" stop-color="#7a3c14"/><stop offset="1" stop-color="#3b1a06"/></linearGradient>
+<radialGradient id="lg" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#b04820"/><stop offset=".6" stop-color="#8a3010"/><stop offset="1" stop-color="#4a1805"/></radialGradient>
+</defs>
+<rect x="38" y="62" width="26" height="470" rx="4" fill="url(#wl)"/>
+<rect x="276" y="62" width="26" height="470" rx="4" fill="url(#wl)"/>
+<rect x="32" y="62" width="276" height="18" rx="4" fill="#8b4a1e"/>
+<rect x="68" y="430" width="204" height="172" rx="8" fill="url(#lg)" stroke="#2a0e02" stroke-width="3"/>
+<rect x="72" y="434" width="196" height="164" rx="5" fill="none" stroke="rgba(180,90,30,.45)" stroke-dasharray="4 3"/>
+<rect x="125" y="500" width="90" height="12" rx="3" fill="#2c1505"/>
+<rect x="118" y="580" width="104" height="14" rx="3" fill="#c8a060"/>
+<g id="strings"></g>
+</svg>
+<div id="info">Tap or slide across the gold strings</div>
+<div class="ft">Gold strings 1·4·6·8·10 are played with fingers 1–5.<br>Keyboard: press 1 2 3 4 5 (hold several together to play chords).<br>iPhone: turn off silent mode (side switch) to hear sound.</div>
+<script>
+const NOTE={F2:'bf2',C2:'bc2',D2:'bd2',A2:'ba2',G2:'bg2',E2:'be2',Db2:'bcs2',Gb2:'bfs2'};
+const K={selamta:['F2','C2','D2','A2','G2'],wanen:['E2','C2','D2','A2','G2'],anchi:['F2','C2','Db2','A2','Gb2']};
+const NAMES={selamta:'Selamta',wanen:'Wanen (Tizita)',anchi:'Anchi Hoye'};
+const MAIN=[0,3,5,7,9];
+let ctx,bufs={},cur='selamta',last=-1,down=false;
+const $=id=>document.getElementById(id),lab=n=>n.replace('b','♭');
+function b64(s){const a=atob(s),u=new Uint8Array(a.length);for(let i=0;i<a.length;i++)u[i]=a.charCodeAt(i);return u.buffer}
+function initAudio(){
+  if(ctx){if(ctx.state!=='running')ctx.resume();return}
+  const AC=window.AudioContext||window.webkitAudioContext;ctx=new AC();ctx.resume();
+  const o=ctx.createBufferSource();o.buffer=ctx.createBuffer(1,1,22050);o.connect(ctx.destination);o.start(0);
+  Object.values(NOTE).forEach(k=>fetch('samples/'+k+'.mp3').then(r=>r.arrayBuffer()).then(a=>ctx.decodeAudioData(a,b=>{bufs[k]=b},()=>{})).catch(()=>{}));
+}
+function play(n){
+  const b=bufs[NOTE[n]];if(!b)return false;
+  const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=b;g.gain.value=.9;s.connect(g);g.connect(ctx.destination);s.start(0);return true;
+}
+function draw(){
+  let h='';
+  for(let i=0;i<10;i++){
+    const t=i/9,x1=70+t*200,x2=145+t*50,m=MAIN.indexOf(i),k=m>=0;
+    h+=`<g data-s="${i}" class="${k?'main':'drone'}"><line class="hit" x1="${x1}" y1="80" x2="${x2}" y2="584"/>`+
+       `<line class="ln" x1="${x1}" y1="80" x2="${x2}" y2="584" stroke-width="${k?2.2:1.2}"/></g>`;
+    if(k)h+=`<circle class="bd" cx="${x1}" cy="22" r="12"/><text class="fn" x="${x1}" y="27">${m+1}</text><text class="nt" x="${x1}" y="52">${lab(K[cur][m])}</text>`;
+  }
+  $('strings').innerHTML=h;
+}
+function pluck(i,g){
+  const m=MAIN.indexOf(i);if(m<0)return;
+  const n=K[cur][m],ok=play(n);
+  g.classList.remove('on');g.getBoundingClientRect();g.classList.add('on');setTimeout(()=>g.classList.remove('on'),700);
+  $('info').textContent=ok?`${lab(n)} · string ${i+1} · finger ${m+1}`:'Loading sounds…';
+}
+function hit(e){
+  const el=document.elementFromPoint(e.clientX,e.clientY),g=el&&el.closest?el.closest('[data-s]'):null,i=g?+g.dataset.s:-1;
+  if(i===last)return;last=i;if(i>=0)pluck(i,g);
+}
+const sv=$('sv');
+sv.addEventListener('pointerdown',e=>{e.preventDefault();initAudio();down=true;last=-1;hit(e)});
+sv.addEventListener('pointermove',e=>{if(down)hit(e)});
+['pointerup','pointercancel'].forEach(t=>addEventListener(t,()=>{down=false;last=-1}));
+
+const held=new Set();
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const n='12345'.indexOf(e.key);if(n<0||e.key.length!==1)return;
+  e.preventDefault();if(held.has(n))return;held.add(n);
+  initAudio();const i=MAIN[n];pluck(i,document.querySelector('[data-s="'+i+'"]'));
+});
+addEventListener('keyup',e=>{const n='12345'.indexOf(e.key);if(n>=0)held.delete(n)});
+addEventListener('blur',()=>held.clear());
+$('bar').innerHTML=Object.keys(NAMES).map(k=>`<button data-k="${k}" class="${k===cur?'on':''}">${NAMES[k]}</button>`).join('');
+$('bar').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;cur=b.dataset.k;
+  document.querySelectorAll('#bar button').forEach(x=>x.classList.toggle('on',x===b));draw();$('info').textContent=NAMES[cur];
+});
+draw();
+</script>
+</body>
+</html>
