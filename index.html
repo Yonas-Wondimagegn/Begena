@@ -31,7 +31,7 @@ svg{width:min(400px,94vw);height:auto;margin-top:12px;touch-action:none;filter:d
 .rcbar button{background:rgba(255,255,255,.06);border:1px solid rgba(201,146,42,.4);color:var(--gold);font:13px Georgia,serif;padding:8px 12px;border-radius:3px;cursor:pointer}
 .rcbar button:active{background:var(--gold);color:#2c1505}
 .rcbar button.on{background:#a8321c;border-color:#e0553a;color:#ffe9e0;font-weight:700}
-#score{width:min(400px,94vw);min-height:76px;box-sizing:border-box;margin-top:10px;padding:9px 12px;border:1px solid rgba(201,146,42,.35);border-radius:4px;background:rgba(255,255,255,.05);font:700 18px Georgia,serif;line-height:1.5;color:var(--cream);outline:none;white-space:pre-wrap;word-break:break-word}
+#score{width:min(400px,94vw);min-height:76px;box-sizing:border-box;margin-top:10px;padding:9px 12px;border:1px solid rgba(201,146,42,.35);border-radius:4px;background:rgba(255,255,255,.05);font:700 18px Georgia,serif;line-height:1.5;color:var(--cream);outline:none;-webkit-user-select:text;user-select:text;white-space:pre-wrap;word-break:break-word}
 #score:focus{border-color:var(--gold2)}
 #score:empty::before{content:attr(data-ph);color:rgba(245,232,200,.3);font:italic 13px Georgia,serif;letter-spacing:0}
 #score .hl-on{color:#39e6c8;text-shadow:0 0 9px rgba(57,230,200,.6)}
@@ -40,13 +40,29 @@ svg{width:min(400px,94vw);height:auto;margin-top:12px;touch-action:none;filter:d
 .rcbar label:active{background:var(--gold);color:#2c1505}
 #spd{width:104px;padding:0;background:none;border:none;accent-color:#c9922a;cursor:pointer}
 #spdv{color:var(--gold2);font:12px 'Courier New',monospace;min-width:46px;text-align:right}
+[hidden]{display:none!important}
+input,select,textarea{-webkit-user-select:text;user-select:text}
+.sec{display:flex;flex-direction:column;align-items:center;width:min(400px,94vw);margin-top:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;width:100%;margin:6px 0}
+.btn{background:var(--gold);color:#2c1505;border:0;border-radius:3px;padding:10px 14px;font:700 13px Georgia,serif;cursor:pointer}
+input[type=number],select{background:#2a180b;color:var(--cream);border:1px solid rgba(201,146,42,.4);border-radius:3px;padding:8px;font:14px Georgia,serif}
+.chk{font-size:13px}
+.meter{position:relative;width:100%;height:14px;background:#2a180b;border-radius:7px;margin:18px 0 12px}
+.meter:before{content:'';position:absolute;left:calc(50% - 1px);top:-4px;width:2px;height:22px;background:#4a8}
+.meter i{position:absolute;top:-5px;width:6px;height:24px;border-radius:3px;background:var(--gold2);left:50%;transition:left .08s}
+#tnote{font-size:46px;color:var(--gold2);min-height:56px}#tstat{font-size:17px;min-height:26px;text-align:center}.ok{color:#7ddc8a}
+#tstr button small{display:block;font-size:11px;opacity:.8}
+#tstr button.done{border-color:#7ddc8a;color:#7ddc8a}#tstr button.done.on{background:#7ddc8a;color:#12301a}
+#ttrace{width:100%;height:80px;background:#120a05;border:1px solid rgba(201,146,42,.3);border-radius:4px;margin-top:8px}
+.card{width:100%;margin-top:14px;padding:12px;border:1px solid rgba(201,146,42,.3);border-radius:4px;background:rgba(255,255,255,.04);font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="am">በገና • BEGENA</div>
 <h1>The <span>Begena</span></h1>
+<div class="bar" id="tabs"><button data-t="play" class="on">Play</button><button data-t="tuner">Tuner</button></div>
 <div class="bar" id="bar"></div>
-<svg id="sv" viewBox="0 0 340 620">
+<section class="sec" id="p-play"><svg id="sv" viewBox="0 0 340 620">
 <defs>
 <linearGradient id="wl" x1="0" x2="1"><stop offset="0" stop-color="#1a0a02"/><stop offset=".5" stop-color="#7a3c14"/><stop offset="1" stop-color="#3b1a06"/></linearGradient>
 <radialGradient id="lg" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#b04820"/><stop offset=".6" stop-color="#8a3010"/><stop offset="1" stop-color="#4a1805"/></radialGradient>
@@ -71,10 +87,22 @@ svg{width:min(400px,94vw);height:auto;margin-top:12px;touch-action:none;filter:d
 </div>
 <div id="score" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="false" data-ph="Press ● Start recording, then play 1–5 — or type notes here (space = gap, Enter = new line)"></div>
 <div id="rprog"></div>
-<div class="ft">Gold strings 1·4·6·8·10 are played with fingers 1–5.<br>Press ● Start recording to capture your playing; press ■ Stop to play freely without recording.<br>Edit the score or import an audio recording to transcribe it.</div>
+<div class="ft">Gold strings 1·4·6·8·10 are played with fingers 1–5.<br>Press ● Start recording to capture your playing; press ■ Stop to play freely without recording.<br>Edit the score, or import an audio recording: the tuning is detected automatically.</div>
+</section>
+<section class="sec" id="p-tuner" hidden>
+<div class="row"><label class="chk"><input type="checkbox" id="tguide" checked> Guided (auto-next)</label><button class="btn" id="trestart">Restart</button></div>
+<div class="row bar" id="tstr"></div>
+<div id="tnote">—</div><div id="thz" class="ft"></div>
+<div class="meter"><i id="tneedle"></i></div>
+<div id="tstat">Press Start, then pluck string 1</div>
+<canvas id="ttrace"></canvas>
+<div class="row"><button class="btn" id="tmic">Start listening</button><button class="btn" id="ttone">Hold tone</button></div>
+<div class="row"><button class="btn" id="tcal">Use this pitch as my reference</button><label class="chk">A = <input id="tref" type="number" step="0.1" style="width:78px"> Hz</label></div>
+<div class="ft" id="tmsg">Tap a string number to hear its reference note and lock it. Auto picks the closest string.</div>
+<div class="card"><b>Retune guide</b> · I am currently tuned to <select id="tfrom"></select><div id="tretune" style="margin-top:8px"></div></div>
+</section>
 <script>
 const NOTE={F2:'bf2',C2:'bc2',D2:'bd2',A2:'ba2',G2:'bg2',E2:'be2',Db2:'bcs2',Gb2:'bfs2'};
-const FREQ={F2:87.31,C2:65.41,D2:73.42,A2:110,G2:98,E2:82.41,Db2:69.3,Gb2:92.5};
 const K={selamta:['F2','C2','D2','A2','G2'],wanen:['E2','C2','D2','A2','G2'],anchi:['F2','C2','Db2','A2','Gb2']};
 const NAMES={selamta:'Selamta',wanen:'Wanen (Tizita)',anchi:'Anchi Hoye'};
 const MAIN=[0,3,5,7,9];
@@ -307,89 +335,77 @@ SCORE.addEventListener('paste',()=>setTimeout(normalizeScore,0));
 
 function setStatus(t){ $('rprog').textContent=t; }
 
-function nearestFinger(f){
-  let best=-1,bestD=99;
-  for(let i=0;i<K[cur].length;i++){
-    const d=Math.abs(12*Math.log2(f/FREQ[K[cur][i]]));
-    if(d<bestD){ bestD=d; best=i; }
-  }
-  return bestD<=0.8?best:-1;
-}
-
-function pitchAt(d,sr,start,len){
-  if(start<0||start+len>d.length) return -1;
-  let mean=0; for(let i=0;i<len;i++) mean+=d[start+i]; mean/=len;
-  const x=new Float32Array(len); let r=0;
-  for(let i=0;i<len;i++){ const v=d[start+i]-mean; x[i]=v; r+=v*v; }
-  if(Math.sqrt(r/len)<0.005) return -1;
-  const minLag=Math.floor(sr/200), maxLag=Math.ceil(sr/50);
-  let bl=-1, bv=0;
-  for(let lag=minLag; lag<=maxLag; lag++){
-    let c=0, e1=0, e2=0;
-    for(let i=0;i+lag<len;i++){ c+=x[i]*x[i+lag]; e1+=x[i]*x[i]; e2+=x[i+lag]*x[i+lag]; }
-    const nc=c/Math.sqrt(e1*e2||1);
-    if(nc>bv){ bv=nc; bl=lag; }
-  }
-  return (bl>0&&bv>=0.6)?sr/bl:-1;
-}
-
-async function detectNotes(d,sr){
-  const notes=[];
-  const frame=1024, hop=256;
-  for(let start=0; start+frame<d.length; start+=hop){
-    const f=pitchAt(d,sr,start,frame);
-    if(f>0){
-      const fing=nearestFinger(f);
-      if(fing>=0){
-        notes.push({t:start/sr,f,fing:fing+1});
-      }
-    }
-  }
-  const merged=[];
-  for(const n of notes){
-    const last=merged[merged.length-1];
-    if(last && n.t - last.t < 0.18){
-      if(n.f > last.f){ last.f = n.f; last.fing = n.fing; }
-    } else {
-      merged.push({t:n.t,f:n.f,fing:n.fing});
-    }
-  }
-  return merged;
-}
-
-async function importAudio(file){
-  setStatus('Decoding audio…');
-  try{
-    const ab=await file.arrayBuffer();
-    initAudio();
-    const audio=await ctx.decodeAudioData(ab);
-    const lowSR=8000, dur=Math.min(audio.duration,90);
-    const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
-    const off=new OAC(1,Math.max(1,Math.ceil(dur*lowSR)),lowSR);
-    const src=off.createBufferSource();
-    src.buffer=audio; src.connect(off.destination); src.start(0);
-    const rendered=await off.startRendering();
-    const notes=await detectNotes(rendered.getChannelData(0),lowSR);
-    if(!notes.length){
-      setStatus('No notes detected — try a clearer solo recording.');
-      return;
-    }
-    let out='', prev=null;
-    for(const e of notes){
-      if(prev!=null){ const gap=e.t-prev; if(gap>1.3) out+='\n'; else if(gap>0.6) out+=' '; }
-      out+=e.fing; prev=e.t;
-    }
-    const prevScore=scoreText();
-    SCORE.textContent=(prevScore?prevScore+'\n':'')+out;
-    setStatus('♪ '+notes.length+' notes detected · '+NAMES[cur]);
-  } catch(err){
-    setStatus('Audio import failed — try a WAV or MP3.');
-  }
-}
+//#pure-start
+const SEMI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function midi(n){const m=/^([A-G])([b#]?)(\d)$/.exec(n);return 12*(+m[3]+1)+SEMI[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)}
+function circ(a){return Math.abs(((a%12)+18)%12-6)}
+function yin(d,sr){
+  const W=d.length>>1,tm=Math.min(W-1,Math.floor(sr/50)),t0=Math.floor(sr/450);let e=0;
+  for(let i=0;i<W;i++)e+=d[i]*d[i];if(e/W<1e-8)return -1;
+  const df=new Float32Array(tm+2),n=new Float32Array(tm+2);
+  for(let t=1;t<=tm+1;t++){let s=0;for(let i=0;i<W;i++){const v=d[i]-d[i+t];s+=v*v}df[t]=s}
+  let c=0;n[0]=1;for(let t=1;t<=tm+1;t++){c+=df[t];n[t]=df[t]*t/c}
+  for(let t=t0;t<tm;t++)if(n[t]<.2){while(t+1<tm&&n[t+1]<n[t])t++;
+    const a=n[t-1],b=n[t],g=n[t+1],den=2*(2*b-a-g);return sr/(t+(den?(g-a)/den:0))}
+  return -1}
+function resampleMono(chs,srcSr,dstSr,maxSec){
+  const n=Math.min(chs[0].length,Math.floor(maxSec*srcSr)),ratio=srcSr/dstSr,m=Math.floor(n/ratio),out=new Float32Array(m);
+  for(let i=0;i<m;i++){const a=Math.floor(i*ratio),b=Math.max(a+1,Math.floor((i+1)*ratio));let s=0;
+    for(const x of chs)for(let j=a;j<b&&j<n;j++)s+=x[j];out[i]=s/((b-a)*chs.length)}
+  return out}
+function findOnsets(d,sr){
+  const win=Math.round(sr*.04),hop=Math.round(sr*.01),n=Math.max(0,Math.floor((d.length-win)/hop)),db=new Float32Array(n);
+  for(let i=0;i<n;i++){let e=0;const o=i*hop;for(let j=0;j<win;j++){const v=d[o+j];e+=v*v}db[i]=10*Math.log10(e/win+1e-10)}
+  if(n<12)return [];
+  const srt=Array.from(db).sort((a,b)=>a-b),floor=srt[Math.floor(n*.1)],peak=srt[Math.floor(n*.98)],gate=Math.max(floor+10,peak-35);
+  const on=[];let armed=true,lastI=-99,pk=-1e9;
+  for(let i=0;i<n;i++){
+    if(!armed){if(db[i]>pk)pk=db[i];if(db[i]<=pk-1.5||i-lastI>40)armed=true}
+    let mn=floor;if(i>0){mn=1e9;for(let j=Math.max(0,i-12);j<i;j++)if(db[j]<mn)mn=db[j]}
+    if(armed&&db[i]-mn>=2&&db[i]>gate&&i-lastI>=9){
+      let b=i,k=0;while(b>0&&k<15&&db[b-1]<=db[b]){b--;k++}
+      let top=db[i];for(let j=i;j<Math.min(n,i+8);j++)if(db[j]>top)top=db[j];
+      on.push({t:(b*hop+win*.25)/sr,s:top-mn});armed=false;lastI=i;pk=db[i]}}
+  return on}
+function notePitch(d,sr,t,tEnd){
+  const fs=[];
+  for(const off of [.05,.08,.11,.15,.2]){
+    const a=Math.round((t+off)*sr);let len=Math.min(2048,Math.round(tEnd*sr)-a-Math.round(.01*sr));
+    if(len<1100)len=Math.min(1100,d.length-a);if(a<0||a+len>d.length||len<1000)continue;
+    const x=d.slice(a,a+len);let mu=0;for(let i=0;i<len;i++)mu+=x[i];mu/=len;for(let i=0;i<len;i++)x[i]-=mu;
+    const f=yin(x,sr);if(f>45&&f<450)fs.push(f)}
+  if(!fs.length)return -1;fs.sort((a,b)=>a-b);return fs[fs.length>>1]}
+function fitKignits(ms,K,order,prefer){
+  const res=[];
+  for(const k of order){const P=K[k].map(midi);let best={c:1e9,dl:0};
+    for(let dl=-50;dl<=50;dl+=5){const dd=dl/100;let c=0;
+      for(const m of ms){let md=9;for(const p of P)md=Math.min(md,circ(m-dd-p));c+=Math.min(md*md,.25)}
+      if(c<best.c)best={c,dl}}
+    res.push({k,c:best.c,dl:best.dl})}
+  const min=Math.min(...res.map(r=>r.c)),tied=res.filter(r=>r.c<=min+.2);
+  return{pick:tied.find(r=>r.k===prefer)||tied[0],tied}}
+function toFingers(ms,P,dd){return ms.map(m=>{let bj=-1,bd=9;P.forEach((p,j)=>{const d=circ(m-dd-p);if(d<bd){bd=d;bj=j}});return bd<=.6?bj+1:0})}
+function scoreFromTimes(ev){
+  if(!ev.length)return '';
+  const g=ev.slice(1).map((e,i)=>e.t-ev[i].t).sort((a,b)=>a-b),med=g.length?g[g.length>>1]:.5;
+  let o=''+ev[0].f;
+  for(let i=1;i<ev.length;i++){const gap=ev[i].t-ev[i-1].t;o+=(gap>Math.max(1.4,3.6*med)?'\n':gap>Math.max(.55,1.8*med)?' ':'')+ev[i].f}
+  return o}
+function analyzeNotes(d,sr,refA,K,order,prefer){
+  const on=findOnsets(d,sr);let notes=[];
+  on.forEach((o,i)=>{const f=notePitch(d,sr,o.t,i+1<on.length?on[i+1].t:o.t+1);if(f>0)notes.push({t:o.t,f,s:o.s,m:69+12*Math.log2(f/refA)})});
+  notes=notes.filter((n,i)=>!(i&&Math.abs(n.m-notes[i-1].m)<.4&&(n.t-notes[i-1].t<.2||n.s<3.6)));
+  if(!notes.length)return{score:'',onsets:on.length};
+  const ms=notes.map(n=>n.m),fit=fitKignits(ms,K,order,prefer),dd=fit.pick.dl/100;
+  const fg=toFingers(ms,K[fit.pick.k].map(midi),dd),ev=notes.map((n,i)=>({t:n.t,f:fg[i]})).filter(e=>e.f);
+  const good=ms.filter(m=>K[fit.pick.k].some(n=>circ(m-dd-midi(n))<=.35)).length;
+  return{score:scoreFromTimes(ev),kignit:fit.pick.k,tied:fit.tied.map(r=>r.k),offset:fit.pick.dl,onsets:on.length,mapped:ev.length,skipped:notes.length-ev.length,fit:good/notes.length,times:ev.map(e=>e.t)}}
+//#pure-end
 
 const held=new Set();
 addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(tab==='tuner'){const n='12345'.indexOf(e.key);if(n>=0&&e.key.length===1&&!e.repeat){e.preventDefault();tunerPick(n)}return}
   const inScore=document.activeElement===SCORE;
   if(inScore){
     if(e.key==='Enter'){ e.preventDefault(); insertNewline(); return; }
@@ -416,6 +432,114 @@ $('rec').addEventListener('click',()=>{ recArmed=!recArmed; if(recArmed) initAud
 $('rp').addEventListener('click',replay);
 $('afile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) importAudio(f); });
 $('spd').addEventListener('input',e=>{ tempo=+e.target.value; $('spdv').textContent=tempo.toFixed(2)+'×'; });
+
+/* ===== tabs, tuner, import ===== */
+const jget=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let tab='play',refA=+jget('begena_refA',440)||440,tLock=0,tGuide=true,tDone=[0,0,0,0,0],mic=null,an=null,buf=null,tt=null,tone=null;
+let okSince=0,lastHit=0,muteUntil=0,lastC=null,lastBi=0;const TR=90,trace=Array(TR).fill(null),recent=[];
+const freq=n=>refA*Math.pow(2,(midi(n)-69)/12);
+function setK(k){if(k&&k!==cur){const b=document.querySelector('#bar button[data-k="'+k+'"]');if(b)b.click()}}
+function setTab(t){
+  if(t!=='tuner'){stopMic();stopTone()}
+  if(t!=='play'){recArmed=false;updateRecUI();stopReplay()}
+  tab=t;$('p-play').hidden=t!=='play';$('p-tuner').hidden=t!=='tuner';
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(t==='tuner'){tunerRender();retuneRender();drawTrace()}}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.t)};
+$('bar').addEventListener('click',()=>{tDone=[0,0,0,0,0];sc0();tunerRender();retuneRender()});
+function sc0(){recent.length=0;okSince=0;lastC=null}
+/* ---- tuner ---- */
+function tunerRender(){
+  $('tstr').innerHTML=K[cur].map((n,i)=>'<button data-i="'+i+'" class="'+(i===tLock?'on ':'')+(tDone[i]?'done':'')+'">'+(i+1)+(tDone[i]?' ✓':'')+'<small>'+lab(n)+'</small></button>').join('')+'<button data-i="-1" class="'+(tLock<0?'on':'')+'">Auto</button>'}
+function tunerPick(i){
+  tLock=i;sc0();tunerRender();
+  if(i>=0){initAudio();if(play(K[cur][i]))muteUntil=performance.now()+1400;if(tone)tone.o.frequency.value=freq(K[cur][i])}
+  setTunerMsg(i>=0?'String '+(i+1)+' · '+lab(K[cur][i])+' — pluck it and let it ring.':'Auto: pluck any string.')}
+function setTunerMsg(t){$('tmsg').textContent=t}
+$('tstr').onclick=e=>{const b=e.target.closest('button');if(b){if(+b.dataset.i<0)$('tguide').checked=tGuide=false;tunerPick(+b.dataset.i)}};
+$('tguide').onchange=e=>{tGuide=e.target.checked;if(tGuide){tDone=[0,0,0,0,0];tunerPick(0)}};
+$('trestart').onclick=()=>{tDone=[0,0,0,0,0];tGuide=$('tguide').checked=true;tunerPick(0)};
+$('tref').value=refA;
+$('tref').oninput=e=>{refA=+e.target.value||440;jset('begena_refA',refA)};
+function stopMic(){if(tt)clearInterval(tt);tt=null;if(mic){mic.getTracks().forEach(t=>t.stop());mic=null}an=null;$('tmic').textContent='Start listening'}
+$('tmic').onclick=async()=>{
+  if(mic){stopMic();return}initAudio();
+  try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const src=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(4096);src.connect(an);
+    $('tmic').textContent='Stop listening';tt=setInterval(tick,70);if(tGuide&&tLock<0)tLock=0;tunerRender();
+    setTunerMsg(tGuide?'Guided: tune string '+(tLock+1)+' first. Pluck it and let it ring.':'Listening…')}
+  catch(e){mic=null;setTunerMsg('Microphone unavailable ('+(e.name||'error')+'). Open the deployed site over HTTPS and allow the mic.')}};
+function chime(){if(!ctx)return;[0,.12].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+d;o.frequency.value=i?1318:988;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.18,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.25);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+.3)});muteUntil=performance.now()+500}
+function startTone(){const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=freq(K[cur][tLock]);g.gain.value=0;g.gain.linearRampToValueAtTime(.14,ctx.currentTime+.05);o.connect(g);g.connect(ctx.destination);o.start();tone={o,g};$('ttone').textContent='Stop tone'}
+function stopTone(){if(!tone)return;const{o,g}=tone;g.gain.linearRampToValueAtTime(0,ctx.currentTime+.05);o.stop(ctx.currentTime+.08);tone=null;$('ttone').textContent='Hold tone'}
+$('ttone').onclick=()=>{if(tone){stopTone();return}if(tLock<0){setTunerMsg('Tap a string number first.');return}initAudio();startTone();setTunerMsg('Tone playing — stop it to measure with the mic.')};
+$('tcal').onclick=()=>{
+  if(lastC==null){setTunerMsg('Pluck a string first, then press this to use its pitch as the reference.');return}
+  refA=+(refA*Math.pow(2,lastC/1200)).toFixed(2);$('tref').value=refA;jset('begena_refA',refA);sc0();
+  setTunerMsg('Reference set to A = '+refA+' Hz (matches the string you just plucked). Tune the other strings to it.')};
+function median(a){const s=a.slice().sort((x,y)=>x-y);return s[s.length>>1]}
+function idle(now){if(now-lastHit>800){sc0();$('tnote').textContent='—';$('thz').textContent='';$('tneedle').style.left='50%';$('tstat').className='';$('tstat').textContent='Pluck a string…'}trace.push(null);trace.shift();drawTrace()}
+function tick(){
+  if(!an||tone)return;const now=performance.now();if(now<muteUntil)return;
+  an.getFloatTimeDomainData(buf);const f=yin(buf,ctx.sampleRate);
+  if(!(f>45&&f<800))return idle(now);
+  lastHit=now;const idx=tLock>=0?[tLock]:[0,1,2,3,4];let bi=0,bc=1e9;
+  for(const i of idx){let c=1200*Math.log2(f/freq(K[cur][i]));c-=1200*Math.round(c/1200);if(Math.abs(c)<Math.abs(bc)){bc=c;bi=i}}
+  if(recent.length&&Math.abs(bc-recent[recent.length-1])>120)recent.length=0;
+  recent.push(bc);if(recent.length>5)recent.shift();
+  const c=median(recent),ok=Math.abs(c)<=5;lastC=c;lastBi=bi;
+  if(ok){if(!okSince)okSince=now}else okSince=0;
+  $('tnote').textContent=(bi+1)+' · '+lab(K[cur][bi]);$('thz').textContent=f.toFixed(1)+' Hz   ('+(c>0?'+':'')+Math.round(c)+'¢)';
+  $('tneedle').style.left=(50+Math.max(-50,Math.min(50,c)))+'%';
+  const a=Math.abs(c),amt=a>=50?'a lot':a>=15?'some':'a touch';
+  $('tstat').textContent=ok?'✓ In tune':Math.abs(c)>150?'Far off — check you plucked string '+(bi+1):c<0?'Too low — tighten '+amt+' ↑':'Too high — loosen '+amt+' ↓';
+  $('tstat').className=ok?'ok':'';
+  trace.push(c);trace.shift();drawTrace();
+  if(tGuide&&tLock>=0&&ok&&!tDone[tLock]&&now-okSince>900){
+    tDone[tLock]=1;chime();const nx=tDone.indexOf(0);
+    if(nx<0){setTunerMsg('All 5 strings are in tune ✓  (Restart to re-check.)');tunerRender()}
+    else{tLock=nx;sc0();tunerRender();setTunerMsg('String '+(nx-0+1)+' next ('+lab(K[cur][nx])+') — pluck it and let it ring.')}}}
+const tr=$('ttrace');
+function drawTrace(){
+  const dpr=window.devicePixelRatio||1,w=tr.clientWidth,h=tr.clientHeight;if(!w)return;
+  if(tr.width!==Math.round(w*dpr)){tr.width=Math.round(w*dpr);tr.height=Math.round(h*dpr)}
+  const x=tr.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+  const y=c=>h/2-Math.max(-50,Math.min(50,c))/50*(h/2-4);
+  x.fillStyle='rgba(125,220,138,.2)';x.fillRect(0,y(5),w,y(-5)-y(5));
+  x.strokeStyle='rgba(245,232,200,.2)';x.beginPath();x.moveTo(0,h/2);x.lineTo(w,h/2);x.stroke();
+  x.strokeStyle='#e8b84b';x.lineWidth=2;x.beginPath();let pen=false;
+  trace.forEach((c,i)=>{const px=i/(TR-1)*w;if(c==null){pen=false;return}pen?x.lineTo(px,y(c)):x.moveTo(px,y(c));pen=true});x.stroke()}
+/* retune guide */
+$('tfrom').innerHTML='<option value="">— pick —</option>'+Object.keys(NAMES).map(k=>'<option value="'+k+'">'+NAMES[k]+'</option>').join('');
+$('tfrom').onchange=retuneRender;
+function retuneRender(){
+  const from=$('tfrom').value,el=$('tretune');
+  if(!from){el.textContent='Pick the tuning your begena is in now to see which strings to change for '+NAMES[cur]+'.';return}
+  if(from===cur){el.textContent='Already in '+NAMES[cur]+' — nothing to change.';return}
+  const ch=[];K[cur].forEach((to,i)=>{const d=midi(to)-midi(K[from][i]);if(d)ch.push('String '+(MAIN[i]+1)+' (finger '+(i+1)+'): '+lab(K[from][i])+' → '+lab(to)+' · '+(d<0?'loosen':'tighten')+' '+Math.abs(d)+' semitone'+(Math.abs(d)>1?'s':''))});
+  el.innerHTML='<b>'+NAMES[from]+' → '+NAMES[cur]+'</b>: '+(ch.length===1?'only 1 string changes':ch.length+' strings change')+'<br>'+ch.join('<br>')+'<br><i>Then run Guided tuning to fine-tune.</i>'}
+/* ---- import audio (auto-detects the tuning) ---- */
+async function importAudio(file){
+  setStatus('Decoding audio…');
+  try{
+    const ab=await file.arrayBuffer();initAudio();
+    const audio=await new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej)});
+    const chs=[];for(let c=0;c<audio.numberOfChannels;c++)chs.push(audio.getChannelData(c));
+    setStatus('Analyzing…');await new Promise(r=>setTimeout(r,30));
+    const d=resampleMono(chs,audio.sampleRate,22050,90),r=analyzeNotes(d,22050,refA,K,Object.keys(K),cur);
+    if(!r.score){setStatus('No notes found — try a clearer solo recording.');return}
+    setK(r.kignit);
+    const prev=scoreText();SCORE.textContent=(prev?prev+'\n':'')+r.score;
+    let m='♪ '+r.mapped+' notes · '+NAMES[r.kignit];
+    const oth=r.tied.filter(x=>x!==r.kignit);if(oth.length)m+=' (these notes also fit '+oth.map(x=>NAMES[x]).join(', ')+')';
+    if(Math.abs(r.offset)>=10)m+=' · played '+(r.offset>0?'+':'')+r.offset+'¢ from A='+refA;
+    if(r.skipped)m+=' · '+r.skipped+' unclear skipped';
+    if(r.fit<.6)m+=' · weak match: check the Tuner reference';
+    if(audio.duration>90)m+=' · first 90 s only';
+    setStatus(m);
+  }catch(err){setStatus('Audio import failed — try a WAV or MP3.')}}
+tunerRender();retuneRender();
 
 updateRecUI();
 updateReplayUI();
